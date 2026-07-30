@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f2efe8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+<title>教材スタジオ v0.4 教材研究パートナー</title>
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <h1>教材スタジオ <small class="version">v0.4</small></h1>
+    <small id="status">準備完了</small>
+  </div>
+  <div class="top-actions">
+    <button id="newProject">新規</button>
+    <button id="saveProject" class="primary">教材アーカイブへ保存</button>
+    <button id="icloudSave">iCloudに保存</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button data-tab="studio" class="active">作業画面</button>
+  <button data-tab="archive">教材アーカイブ</button>
+  <button data-tab="settings">設定</button>
+</nav>
+
+<main>
+<section id="studio" class="tab active">
+  <div class="project-meta">
+    <input id="projectTitle" value="新しい教材" aria-label="教材名">
+    <select id="category" aria-label="教科">
+      <option>数学</option><option>理科</option><option>国語</option>
+      <option>社会</option><option>英語</option><option>講義記録</option><option>その他</option>
+    </select>
+    <select id="grade" aria-label="学年">
+      <option value="">学年：指定なし</option><option>小学</option><option>中学1年</option>
+      <option>中学2年</option><option>中学3年</option><option>高校1年</option>
+      <option>高校2年</option><option>高校3年</option><option>教員研修</option>
+    </select>
+    <input id="domain" placeholder="分野（例：関数、図形）">
+    <input id="unit" placeholder="単元（例：二次関数）">
+    <select id="purpose" aria-label="教材の用途">
+      <option value="">用途：指定なし</option><option>導入</option><option>基礎定着</option>
+      <option>誤答分析</option><option>授業研究</option><option>確認問題</option>
+      <option>発展</option><option>高校入試</option><option>講演記録</option>
+    </select>
+    <select id="difficulty" aria-label="難易度">
+      <option value="">難易度：指定なし</option><option>基本</option><option>標準</option><option>発展</option><option>入試</option>
+    </select>
+    <input id="tags" placeholder="タグ（例：相似, 高校入試）">
+  </div>
+
+  <div class="layout">
+    <section class="pdf-panel card">
+      <div class="panel-title">
+        <strong>PDF・資料</strong>
+        <div>
+          <label class="file-button">PDFを開く<input id="pdfInput" type="file" accept="application/pdf"></label>
+          <button id="prevPage">◀</button>
+          <span><b id="pageNum">0</b>/<span id="pageCount">0</span></span>
+          <button id="nextPage">▶</button>
+        </div>
+      </div>
+      <div id="pdfStage" class="pdf-stage">
+        <div id="pdfEmpty" class="empty">PDFを読み込むと、ここに表示されます。</div>
+        <canvas id="pdfCanvas"></canvas>
+        <canvas id="inkCanvas"></canvas>
+      </div>
+      <div class="ink-tools">
+        <button data-tool="pan" class="active">閲覧</button>
+        <button data-tool="pen">ペン</button>
+        <button data-tool="highlight">蛍光</button>
+        <button data-tool="eraser">消しゴム</button>
+        <input id="inkColor" type="color" value="#d7263d" title="色">
+        <label>太さ <input id="inkWidth" type="range" min="1" max="24" value="4"></label>
+        <button id="undoInk">戻す</button>
+        <button id="clearPageInk">この頁の注釈消去</button>
+      </div>
+    </section>
+
+    <section class="notes-panel card">
+      <div class="panel-title">
+        <strong>文字起こし・ノート</strong>
+        <div>
+          <button id="startSpeech" class="primary">🎙 開始</button>
+          <button id="stopSpeech" disabled>停止</button>
+        </div>
+      </div>
+      <div id="interim" class="interim"></div>
+      <textarea id="transcript" placeholder="講義の文字起こし、キーボード入力、PDFを見ながらのメモに使えます。"></textarea>
+      <div class="note-actions">
+        <button id="insertTime">時刻を挿入</button>
+        <button id="copyTranscript">コピー</button>
+        <button id="clearTranscript">文章消去</button>
+      </div>
+    </section>
+  </div>
+
+  <section class="summary-panel card">
+    <div class="panel-title">
+      <strong>AI要約・教材化</strong>
+      <div>
+        <select id="summaryMode">
+          <option value="summary">要点を整理</option>
+          <option value="lesson">授業用に整理</option>
+          <option value="questions">確認問題を作成</option>
+          <option value="entrance">入試教材として分析</option>
+        </select>
+        <button id="runSummary" class="primary">ChatGPTで作成</button>
+      </div>
+    </div>
+    <textarea id="summary" placeholder="AIの要約・教材案がここに入ります。結果は自由に修正できます。"></textarea>
+  </section>
+
+  <section class="variation-panel card">
+    <div class="panel-title">
+      <strong>🤖 教材研究パートナー ― 類題・正答・解説</strong>
+      <div>
+        <select id="variationType" aria-label="類題の作り方">
+          <option value="numbers">数値を変更</option>
+          <option value="condition">条件を変更</option>
+          <option value="reverse">逆問題にする</option>
+          <option value="geometry">図形・グラフに置き換える</option>
+          <option value="entrance">高校入試レベルへ発展</option>
+        </select>
+        <select id="variationCount" aria-label="類題数">
+          <option value="1">1問</option><option value="3" selected>3問</option><option value="5">5問</option>
+        </select>
+        <button id="runVariations" class="primary">類題と答えを作成</button>
+      </div>
+    </div>
+    <div class="variation-grid">
+      <div>
+        <label for="sourceProblem"><strong>元問題</strong></label>
+        <textarea id="sourceProblem" placeholder="ここに元問題を貼り付けます。図だけにある条件は文章でも補ってください。"></textarea>
+        <div class="note-actions">
+          <button id="problemFromTranscript">ノート本文を元問題へ</button>
+          <button id="problemFromSummary">AI要約欄を元問題へ</button>
+        </div>
+      </div>
+      <div>
+        <label for="variationResults"><strong>類題・正答・途中式・解説</strong></label>
+        <textarea id="variationResults" placeholder="生成した類題、正答、途中式、生徒向け解説がここに入ります。内容は自由に修正できます。"></textarea>
+        <div class="note-actions">
+          <button id="appendVariations">結果をノート本文へ追加</button>
+          <button id="clearVariations">結果を消去</button>
+        </div>
+      </div>
+    </div>
+    <p class="panel-help">数値変更では、答えができるだけ整数または扱いやすい値になり、条件に矛盾がないこともAIへ確認させます。</p>
+  </section>
+</section>
+
+<section id="archive" class="tab">
+  <div class="archive-head">
+    <h2>教材アーカイブ</h2>
+    <div class="archive-filters">
+      <input id="archiveSearch" placeholder="教材名・単元・タグ・本文を検索">
+      <select id="archiveCategory" aria-label="教科で絞り込み"><option value="">すべての教科</option></select>
+      <select id="archiveGrade" aria-label="学年で絞り込み"><option value="">すべての学年</option></select>
+      <select id="archiveDifficulty" aria-label="難易度で絞り込み"><option value="">すべての難易度</option></select>
+    </div>
+  </div>
+  <div id="archiveList" class="archive-list"></div>
+</section>
+
+<section id="settings" class="tab card settings">
+  <h2>設定</h2>
+  <label>AIサーバーURL
+    <input id="apiEndpoint" placeholder="例：https://your-worker.workers.dev/api/summarize">
+  </label>
+  <p>APIキーはこのiPadには保存しません。付属のCloudflare Workerに秘密情報として登録します。</p>
+  <label>文字起こし言語
+    <select id="speechLang"><option value="ja-JP">日本語</option><option value="en-US">英語</option></select>
+  </label>
+  <button id="persistSettings">設定を保存</button>
+  <hr>
+  <button id="exportAll">アーカイブ全体をバックアップ</button>
+  <label class="file-button">バックアップを復元<input id="importBackup" type="file" accept="application/json"></label>
+</section>
+</main>
+
+<div id="toast"></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
