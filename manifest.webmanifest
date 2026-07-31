@@ -1,9 +1,0 @@
-{
-  "name": "教材スタジオ",
-  "short_name": "教材スタジオ",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#eeeae1",
-  "theme_color": "#f2efe8",
-  "icons": []
-}
